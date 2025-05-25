@@ -1,0 +1,72 @@
+{# templates/index.html #}
+
+{% macro layout(request) %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link
+            rel="stylesheet"
+            href="/static/style/application.css"
+    >
+    <link rel="icon" href="/static/images/favicon.ico" sizes="48x48">
+    <link rel="icon" href="/static/images/favicon.svg" sizes="any" type="image/svg+xml"/>
+    <title>Streaming HTML with FastAPI and Jinja</title>
+</head>
+<body>
+<header>
+    <ul>
+        <li>
+            <svg>
+                <use xlink:href="/static/images/icons.svg#logo"></use>
+            </svg>
+        </li>
+        <li>
+            <h1>Streaming HTML</h1>
+        </li>
+    </ul>
+</header>
+
+<footer>
+    <ul>
+        <li><a href="https://github.com/initialcapacity/python-streaming-html">View on GitHub</a></li>
+        <li><a href="https://initialcapacity.io">Initial Capacity</a></li>
+    </ul>
+    <span>
+        <script>document.write("&copy;" + new Date().getFullYear());</script>
+        Initial Capacity, Inc.
+    </span>
+</footer>
+
+<main>
+    <section>
+        <h1>Streaming HTML with FastAPI and Jinja</h1>
+
+        <p>
+            Streaming responses to the DOM from a FastAPI server—async updates with no JavaScript!
+        </p>
+    </section>
+
+    <section>
+        <slot name="content">
+            <h2>Here's Some Slow Content:</h2>
+
+            {# Open the messages container #}
+            {% endmacro %}
+
+            {% macro message(text) %}
+            <ul class="bulleted">
+                {{ text }}
+            </ul>
+            {% endmacro %}
+        </slot>
+
+        {% macro close_messages() %}
+    </section>
+</main>
+{% endmacro %}
+
+{% macro end_page() %}
+</body>
+</html>
+{% endmacro %}
