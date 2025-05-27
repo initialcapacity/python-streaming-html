@@ -1,6 +1,3 @@
-{# templates/index.html #}
-
-{% macro layout(request) %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,24 +46,17 @@
 
     <section>
         <slot name="content">
-            <h2>Here's Some Slow Content:</h2>
+            <h2>Query to OpenAI: {{ prompt }}</h2>
+            <h3>Streaming Logs</h3>
 
-            {# Open the messages container #}
-            {% endmacro %}
-
-            {% macro message(text) %}
+            {% for log in logs %}
             <ul class="bulleted">
-                {{ text }}
+                {{ log }}
             </ul>
-            {% endmacro %}
+            {% endfor %}
         </slot>
 
-        {% macro close_messages() %}
     </section>
 </main>
-{% endmacro %}
-
-{% macro end_page() %}
 </body>
 </html>
-{% endmacro %}
