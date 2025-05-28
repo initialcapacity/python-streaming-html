@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <link
             rel="stylesheet"
-            href="/static/style/application.css"
+            href="../static/style/application.css"
     >
-    <link rel="icon" href="/static/images/favicon.ico" sizes="48x48">
-    <link rel="icon" href="/static/images/favicon.svg" sizes="any" type="image/svg+xml"/>
+    <link rel="icon" href="../static/images/favicon.ico" sizes="48x48">
+    <link rel="icon" href="../static/images/favicon.svg" sizes="any" type="image/svg+xml"/>
     <title>Streaming HTML with FastAPI and Jinja</title>
 </head>
 <body>
@@ -37,24 +37,26 @@
 
 <main>
     <section>
-        <h1>Streaming HTML with FastAPI and Jinja</h1>
+        <h1>Streaming HTML with OpenAI, FastAPI and Jinja</h1>
 
         <p>
             Streaming responses to the DOM from a FastAPI server—async updates with no JavaScript!
         </p>
     </section>
 
-    <section>
-        <slot name="content">
-            <h2>Query to OpenAI: {{ prompt }}</h2>
-            <h3>Streaming Logs</h3>
+    <section id="query">
+        <h1>What would you like to know?</h1>
 
-            {% for log in logs %}
-            <ul class="bulleted">
-                {{ log }}
-            </ul>
-            {% endfor %}
-        </slot>
+        <p>Ask a question about literally anything.</p>
+
+        <form action="/" method="POST">
+            <fieldset>
+                <label>
+                    <input type="text" name="user_query">
+                </label>
+                <button type="submit">Submit</button>
+            </fieldset>
+        </form>
 
     </section>
 </main>

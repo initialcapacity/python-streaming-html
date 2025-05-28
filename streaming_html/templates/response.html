@@ -1,0 +1,88 @@
+{% macro page_start(query) %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link
+                rel="stylesheet"
+                href="../static/style/application.css"
+        >
+        <link rel="icon" href="../static/images/favicon.ico" sizes="48x48">
+        <link rel="icon" href="../static/images/favicon.svg" sizes="any" type="image/svg+xml"/>
+        <title>Streaming HTML with FastAPI and Jinja</title>
+    </head>
+    <body>
+    <header>
+        <ul>
+            <li>
+                <svg>
+                    <use xlink:href="/static/images/icons.svg#logo"></use>
+                </svg>
+            </li>
+            <li>
+                <h1>Streaming HTML</h1>
+            </li>
+        </ul>
+    </header>
+
+    <footer>
+        <ul>
+            <li><a href="https://github.com/initialcapacity/python-streaming-html">View on GitHub</a></li>
+            <li><a href="https://initialcapacity.io">Initial Capacity</a></li>
+        </ul>
+        <span>
+        <script>document.write("&copy;" + new Date().getFullYear());</script>
+        Initial Capacity, Inc.
+    </span>
+    </footer>
+
+    <main>
+    <section>
+        <h1>Streaming HTML with OpenAI, FastAPI and Jinja</h1>
+
+        <p>
+            Streaming responses to the DOM from a FastAPI server—async updates with no JavaScript!
+        </p>
+    </section>
+
+    <section id="query">
+        <h1>What else would you like to know?</h1>
+
+        <p>Seriously. I have the knowledge of humankind in my grasp.</p>
+
+        <form action="/" method="POST">
+            <fieldset>
+                <label>
+                    <input type="text" name="user_query">
+                </label>
+                <button type="submit">ASK</button>
+            </fieldset>
+        </form>
+
+    </section>
+
+    <article>
+    <h2>Query: {{ query }}</h2>
+    <section>
+    <h3>Streaming Logs</h3>
+    <h3>Result</h3>
+    <section>
+{% endmacro %}
+
+{% macro log_lines(log) %}
+    {{ log }}<br/>
+{% endmacro %}
+{% macro result(result) %}
+    </section>
+    <section>
+    <div>{{ result | safe }}</div>
+{% endmacro %}
+
+{% macro page_end() %}
+    </section>
+    </section>
+    </article>
+    </main>
+    </body>
+    </html>
+{% endmacro %}

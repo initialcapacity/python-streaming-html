@@ -51,8 +51,48 @@ main {
     min-width: 13rem;
 }
 
+article {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    align-items: center;
+
+    section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        width: 100%;
+        box-sizing: border-box;
+
+        h3 {
+            padding: 2rem 0;
+        }
+
+        section {
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            max-width: 80rem;
+        }
+
+        section:not(:last-child) {
+            border-bottom: unset
+        }
+    }
+}
+
+
 section {
     padding: var(--body-padding);
+}
+
+#query {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
 }
 
 section:not(:last-child) {

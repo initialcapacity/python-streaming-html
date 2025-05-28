@@ -3,11 +3,11 @@ import os
 import queue
 import threading
 from time import sleep
-from typing import List
+from typing import Annotated
 
 import requests
-from fastapi import APIRouter, Request
-from starlette.responses import StreamingResponse
+from fastapi import APIRouter, Request, Form
+from starlette.responses import StreamingResponse, HTMLResponse
 
 from streaming_html.templates import templates
 
@@ -25,16 +25,22 @@ class QueueHandler(logging.Handler):
 logger = logging.getLogger('streaming_html')
 logger.setLevel(logging.DEBUG)
 handler = QueueHandler()
-logging.basicConfig(level=logging.DEBUG, handlers=[handler, logging.StreamHandler()])
+logging.basicConfig(level=logging.INFO, handlers=[handler, logging.StreamHandler()])
 
-agent_result: List[str] = []
+class Agent:
+    def __init__(self, api_key: str, logs: queue.Queue, done: threading.Event):
+        self.api_key = api_key
+        self.logs = logs
+        self.done = done
+        self.result = None
 
+    def reset(self):
+        self.logs.queue.clear()
+        self.done.clear()
+        self.result = None
 
-def index_router() -> APIRouter:
-    router = APIRouter()
-
-    def get_chat_response(prompt: str):
-        logger.info("Getting chat response...")
+    def get_chat_response(self, prompt: str):
+        self.logs.put("Getting chat response...")
         response = requests.post(
             url="https://api.openai.com/v1/responses",
             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
@@ -45,37 +51,46 @@ def index_router() -> APIRouter:
             print(response.text)
             raise Exception(f"Status code: {response.status_code}")
 
-        logger.info(f"Received chat response: {response.text}")
+        self.logs.put(f"Received chat response: {response.text}")
         response_json = response.json()
-        agent_result.append(response_json)
-        logger.info("Stream completed")
-        done_event.set()
+        print(response_json)
+        self.result = response_json["output"][0]["content"][0]["text"]
+        self.logs.put("Stream completed")
+        self.done.set()
 
-    def tail_logs():
-        while not done_event.is_set() or not log_queue.empty():
-            try:
-                log = log_queue.get(timeout=.25)
-                yield f"{log}<br/>"
-            except queue.Empty:
-                yield "...\n"
-                sleep(.25)
 
-    @router.get("/", response_class=StreamingResponse)
-    def index(request: Request) -> StreamingResponse:
-        prompt = "Why is the sky blue?"
 
-        done_event.clear()
-        threading.Thread(target=get_chat_response, args=(prompt,), daemon=True).start()
+def index_router() -> APIRouter:
+    router = APIRouter()
 
-        template = templates.env.get_template("index.html")
+    @router.get("/")
+    def index(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(request=request, name="index.html" )
 
-        stream = template.stream(
-            request=request,
-            prompt=prompt,
-            logs=tail_logs(),
-            agent_result=agent_result
-        )
+    @router.post("/", response_class=StreamingResponse)
+    def query(user_query: Annotated[str, Form()]) -> StreamingResponse:
+        agent = Agent(api_key=api_key, logs=log_queue, done=done_event)
+        agent.reset()
 
-        return StreamingResponse(stream, media_type="text/html")
+        threading.Thread(target=agent.get_chat_response, args=(user_query,), daemon=True).start()
+
+        template = templates.env.get_template("response.html")
+
+        def stream():
+            yield template.module.page_start(query=user_query)
+
+            while not agent.done.is_set() or not agent.logs.empty():
+                try:
+                    log = agent.logs.get(timeout=.25)
+                    yield template.module.log_lines(log=log)
+                except queue.Empty:
+                    yield template.module.log_lines(log="...")
+                    sleep(.25)
+
+            yield template.module.result(result=agent.result)
+
+            yield template.module.page_end()
+
+        return StreamingResponse(stream(), media_type="text/html")
 
     return router
